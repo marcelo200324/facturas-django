@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Registro de Facturas</title>
+    <style>
+        body {
+            font-family: Arial;
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 10px;
+            background: #000;
+            color: #fff;
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #fff;
+        }
+
+        form {
+            border: 1px solid #444;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            background: #111;
+        }
+
+        .fila {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        label {
+            min-width: 120px;
+            color: #fff;
+        }
+
+        input, textarea {
+            flex: 1;
+            padding: 5px;
+            font-size: 14px;
+            background: #222;
+            border: 1px solid #555;
+            color: white;
+            border-radius: 4px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            margin-bottom: 10px;
+            color: white;
+        }
+
+        th, td {
+            border: 1px solid #444;
+            padding: 6px;
+            text-align: left;
+        }
+
+        th {
+            background: #222;
+        }
+
+        .btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-primario {
+            background-color: #1a73e8;
+            color: white;
+        }
+
+        .btn-secundario {
+            background-color: #444;
+            color: white;
+        }
+
+        .total-factura {
+            text-align: right;
+            font-weight: bold;
+            margin-top: 10px;
+            font-size: 18px;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Registro de Facturas</h1>
+
+<form method="post">
+    {% csrf_token %}
+
+    <h2>Datos de la factura</h2>
+
+    <div class="fila">
+        <label>Fecha:</label>
+        <input type="date" name="fecha" required>
+    </div>
+
+    <div class="fila">
+        <label>Proveedor:</label>
+        <input type="text" name="proveedor" required>
+    </div>
+
+    <div class="fila">
+        <label>Nº Factura:</label>
+        <input type="text" name="numero_factura" required>
+    </div>
+
+    <div class="fila">
+        <label>Observaciones:</label>
+        <textarea name="observaciones"></textarea>
+    </div>
+
+    <h2>Productos</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Precio</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody id="productos-body">
+            <tr class="producto-row">
+                <td><input type="text" name="producto_nombre[]" required></td>
+                <td><input type="number" name="producto_precio[]" class="precio-input" step="1" min="0" required></td>
+                <td style="text-align:center;"><button type="button" class="btn btn-secundario" onclick="eliminarFila(this)">X</button></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <button type="button" class="btn btn-secundario" onclick="agregarFila()">+ Agregar producto</button>
+
+    <div class="total-factura">
+        Total factura: $ <span id="totalFactura">0</span>
+    </div>
+
+    <div style="text-align:center; margin-top:15px;">
+        <button type="submit" class="btn btn-primario">Guardar factura</button>
+    </div>
+</form>
+
+<div style="text-align:right;">
+    <a href="{% url 'resumen_semanal' %}" class="btn-secundario" style="padding:10px; text-decoration:none;">Facturas de la semana</a>
+</div>
+
+<script>
+    function agregarFila() {
+        const tbody = document.getElementById('productos-body');
+        const fila = tbody.querySelector('.producto-row');
+        const nuevaFila = fila.cloneNode(true);
+
+        nuevaFila.querySelectorAll('input').forEach(i => i.value = '');
+        tbody.appendChild(nuevaFila);
+        actualizarTotal();
+    }
+
+    function eliminarFila(btn) {
+        const fila = btn.closest('.producto-row');
+        const tbody = document.getElementById('productos-body');
+        if (tbody.querySelectorAll('.producto-row').length > 1) {
+            fila.remove();
+            actualizarTotal();
+        }
+    }
+
+    function actualizarTotal() {
+        let total = 0;
+        document.querySelectorAll('.precio-input').forEach(i => {
+            const v = parseInt(i.value);
+            if (!isNaN(v)) total += v;
+        });
+        document.getElementById('totalFactura').textContent = total;
+    }
+
+    document.addEventListener('input', actualizarTotal);
+</script>
+
+</body>
+</html>
+
+
+

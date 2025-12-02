@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Historial semanal</title>
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 20px auto;
+            background: #000;   /* ← FONDO NEGRO */
+            color: #fff;        /* ← TEXTO BLANCO */
+        }
+
+        h1 {
+            text-align: center;
+            color: #fff;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            color: #fff;
+        }
+
+        th, td {
+            border: 1px solid #555;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #222;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 8px 12px;
+            background: #1a73e8;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+    </style>
+
+</head>
+<body>
+
+<h1>Historial de Totales Semanales</h1>
+
+<a href="{% url 'resumen_semanal' %}" class="btn">← Volver al resumen semanal</a>
+
+<table>
+    <thead>
+        <tr>
+            <th>Semana</th>
+            <th>Total</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for semana in historial %}
+            <tr>
+                <td>{{ semana.inicio_semana }} — {{ semana.fin_semana }}</td>
+                <td>$ {{ semana.total_semana|floatformat:0 }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+</body>
+</html>

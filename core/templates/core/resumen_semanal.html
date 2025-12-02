@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Resumen semanal</title>
+    <style>
+    
+
+        body {
+            font-family: Arial;
+            max-width: 900px;
+            margin: 20px auto;
+            background: #000; /* FONDO NEGRO */
+            color: #fff;      /* TEXTO BLANCO */
+        }
+
+        h1, h2, h3, p, strong, span {
+            color: #fff;
+            text-align: center;
+        }
+
+        .btn-volver, .btn-historial {
+            display: inline-block;
+            padding: 8px 14px;
+            background: #1a73e8;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+
+        .factura-card {
+            border: 1px solid #444;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            background: #1a1a1a;
+            color: white;
+        }
+
+        .factura-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 16px;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .factura-detalle {
+            margin-top: 10px;
+            display: none;
+            padding-left: 10px;
+            border-top: 1px solid #555;
+            padding-top: 10px;
+            color: #eee;
+        }
+
+        .productos-lista ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .arrow {
+            font-size: 18px;
+            transition: transform 0.3s ease;
+            color: #fff;
+        }
+
+        .arrow.rotate {
+            transform: rotate(90deg);
+        }
+
+        .divider {
+            margin: 40px 0;
+            border-top: 2px solid #666;
+        }
+</style>
+
+</head>
+<body>
+
+<h1>Resumen semanal</h1>
+
+<!-- Botón volver -->
+<div>
+    <a href="{% url 'crear_factura' %}" class="btn-volver">← Volver al formulario</a>
+</div>
+
+<!-- Semana actual -->
+<p style="text-align:center; font-size: 18px;">
+    Semana del <strong>{{ inicio_semana }}</strong> al <strong>{{ fin_semana }}</strong>
+</p>
+
+<h2>Total semanal: $ {{ total_actual|floatformat:0 }}</h2>
+
+{% if facturas_semana %}
+    {% for factura in facturas_semana %}
+        <div class="factura-card" onclick="toggleDetalle('{{ factura.id }}')">
+            <div class="factura-header">
+                <span>
+                    <span class="arrow" id="arrow-{{ factura.id }}">▶</span>
+                    {{ factura.fecha|date:"d/m/Y" }} — Factura {{ factura.numero_factura }} — {{ factura.proveedor }}
+                </span>
+
+
+
+                
+                
+                <span>Total: $ {{ factura.total|floatformat:0 }}</span>
+            </div>
+
+            <div class="factura-detalle" id="detalle-{{ factura.id }}">
+                
+
+                {% if factura.observaciones %}
+                    <p><strong>Observaciones:</strong> {{ factura.observaciones }}</p>
+                {% endif %}
+
+                <div class="productos-lista">
+                    <strong>Productos:</strong>
+                    <ul>
+                        {% for p in factura.productos.all %}
+                            <li>{{ p.nombre_producto }} — $ {{ p.precio|floatformat:0 }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% else %}
+    <p style="text-align:center;">No hay facturas esta semana.</p>
+{% endif %}
+
+<!-- SEPARADOR -->
+<hr class="divider">
+
+<!-- ╔══════════════════════════════╗ -->
+<!--     SEMANA ANTERIOR AQUI        -->
+<!-- ╚══════════════════════════════╝ -->
+
+<h2>Facturas de la semana anterior</h2>
+
+<p style="text-align:center; font-size: 18px;">
+    Semana del <strong>{{ inicio_semana_anterior }}</strong> al <strong>{{ fin_semana_anterior }}</strong>
+</p>
+
+<h3>Total semana anterior: $ {{ total_anterior|floatformat:0 }}</h3>
+
+{% if facturas_semana_anterior %}
+    {% for factura in facturas_semana_anterior %}
+        <div class="factura-card" onclick="toggleDetalle('prev-{{ factura.id }}')">
+            <div class="factura-header">
+                <span>
+                    <span class="arrow" id="arrow-prev-{{ factura.id }}">▶</span>
+                    {{ factura.fecha|date:"d/m/Y" }} — Factura {{ factura.numero_factura }} — {{ factura.proveedor }}
+                </span>
+                <span>Total: $ {{ factura.total|floatformat:0 }}</span>
+            </div>
+
+            <div class="factura-detalle" id="detalle-prev-{{ factura.id }}" style="display:none;">
+                
+
+                {% if factura.observaciones %}
+                    <p><strong>Observaciones:</strong> {{ factura.observaciones }}</p>
+                {% endif %}
+
+                <div class="productos-lista">
+                    <strong>Productos:</strong>
+                    <ul>
+                        {% for p in factura.productos.all %}
+                            <li>{{ p.nombre_producto }} — $ {{ p.precio|floatformat:0 }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% else %}
+    <p style="text-align:center;">No hubo facturas la semana anterior.</p>
+{% endif %}
+
+<!-- Botón historial -->
+<div style="text-align:right;">
+    <a href="{% url 'historial' %}" class="btn-historial">Historial semanal →</a>
+</div>
+
+
+<div style="text-align:right; margin-top:15px;">
+    <a href="{% url 'exportar_word' %}" class="btn-historial">Exportar Word 📝</a>
+</div>
+
+
+
+<script>
+    function toggleDetalle(id) {
+        const detalle = document.getElementById('detalle-' + id);
+        const arrow = document.getElementById('arrow-' + id);
+
+        if (!detalle || !arrow) return;
+
+        if (detalle.style.display === "none" || detalle.style.display === "") {
+            detalle.style.display = "block";
+            arrow.classList.add("rotate");
+        } else {
+            detalle.style.display = "none";
+            arrow.classList.remove("rotate");
+        }
+    }
+</script>
+
+<script>
+    function toggleDetalle2(id) {
+        const detalle = document.getElementById('detalle-prev-' + id);
+        const arrow = document.getElementById('arrow-prev-' + id);
+
+        if (!detalle || !arrow) return;
+
+        if (detalle.style.display === "none" || detalle.style.display === "") {
+            detalle.style.display = "block";
+            arrow.classList.add("rotate");
+        } else {
+            detalle.style.display = "none";
+            arrow.classList.remove("rotate");
+        }
+    }
+</script>
+
+</body>
+</html>
+
+
+
+
