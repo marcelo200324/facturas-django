@@ -8,8 +8,8 @@
             font-family: Arial;
             max-width: 900px;
             margin: 20px auto;
-            background: #000; /* FONDO NEGRO */
-            color: #fff;      /* TEXTO BLANCO */
+            background: #000;
+            color: #fff;
         }
 
         h1, h2, h3, p, strong, span {
@@ -32,7 +32,6 @@
             padding: 12px;
             border-radius: 6px;
             margin-bottom: 12px;
-            cursor: pointer;
             background: #1a1a1a;
             color: white;
         }
@@ -42,6 +41,24 @@
             justify-content: space-between;
             font-size: 16px;
             font-weight: bold;
+            color: #fff;
+        }
+
+        .acciones a {
+            margin-left: 8px;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .btn-editar {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .btn-eliminar {
+            background: #dc3545;
             color: #fff;
         }
 
@@ -63,6 +80,7 @@
             font-size: 18px;
             transition: transform 0.3s ease;
             color: #fff;
+            cursor: pointer;
         }
 
         .arrow.rotate {
@@ -73,25 +91,17 @@
             margin: 40px 0;
             border-top: 2px solid #666;
         }
-
-        .btn-editar {
-            color: #1a73e8;
-            text-decoration: none;
-            margin-left: 10px;
-        }
     </style>
 </head>
 <body>
 
 <h1>Resumen semanal</h1>
 
-<!-- Botón volver -->
 <div>
     <a href="{% url 'crear_factura' %}" class="btn-volver">← Volver al formulario</a>
 </div>
 
-<!-- Semana actual -->
-<p style="text-align:center; font-size: 18px;">
+<p style="font-size: 18px;">
     Semana del <strong>{{ inicio_semana }}</strong> al <strong>{{ fin_semana }}</strong>
 </p>
 
@@ -99,17 +109,21 @@
 
 {% if facturas_semana %}
     {% for factura in facturas_semana %}
-        <div class="factura-card" onclick="toggleDetalle('{{ factura.id }}')">
+        <div class="factura-card">
             <div class="factura-header">
-                <span>
+                <span onclick="toggleDetalle('{{ factura.id }}')" style="cursor:pointer;">
                     <span class="arrow" id="arrow-{{ factura.id }}">▶</span>
                     {{ factura.fecha|date:"d/m/Y" }} — Factura {{ factura.numero_factura }} — {{ factura.proveedor }}
                 </span>
 
-                <span>
-                    Total: $ {{ factura.total|floatformat:0 }}
-                    |
-                    <a href="{% url 'editar_factura' factura.id %}" class="btn-editar">✏️ Editar</a>
+                <span class="acciones">
+                    $ {{ factura.total|floatformat:0 }}
+
+                    <a href="{% url 'editar_factura' factura.id %}" class="btn-editar">✏️</a>
+
+                    <a href="{% url 'eliminar_factura' factura.id %}"
+                       class="btn-eliminar"
+                       onclick="return confirm('¿Seguro que deseas eliminar esta factura?');">🗑</a>
                 </span>
             </div>
 
@@ -130,15 +144,14 @@
         </div>
     {% endfor %}
 {% else %}
-    <p style="text-align:center;">No hay facturas esta semana.</p>
+    <p>No hay facturas esta semana.</p>
 {% endif %}
 
-<!-- SEPARADOR -->
 <hr class="divider">
 
 <h2>Facturas de la semana anterior</h2>
 
-<p style="text-align:center; font-size: 18px;">
+<p style="font-size: 18px;">
     Semana del <strong>{{ inicio_semana_anterior }}</strong> al <strong>{{ fin_semana_anterior }}</strong>
 </p>
 
@@ -146,20 +159,25 @@
 
 {% if facturas_semana_anterior %}
     {% for factura in facturas_semana_anterior %}
-        <div class="factura-card" onclick="toggleDetalle('prev-{{ factura.id }}')">
+        <div class="factura-card">
             <div class="factura-header">
-                <span>
+                <span onclick="toggleDetalle('prev-{{ factura.id }}')" style="cursor:pointer;">
                     <span class="arrow" id="arrow-prev-{{ factura.id }}">▶</span>
                     {{ factura.fecha|date:"d/m/Y" }} — Factura {{ factura.numero_factura }} — {{ factura.proveedor }}
                 </span>
-                <span>
-                    Total: $ {{ factura.total|floatformat:0 }}
-                    |
-                    <a href="{% url 'editar_factura' factura.id %}" class="btn-editar">✏️ Editar</a>
+
+                <span class="acciones">
+                    $ {{ factura.total|floatformat:0 }}
+
+                    <a href="{% url 'editar_factura' factura.id %}" class="btn-editar">✏️</a>
+
+                    <a href="{% url 'eliminar_factura' factura.id %}"
+                       class="btn-eliminar"
+                       onclick="return confirm('¿Seguro que deseas eliminar esta factura?');">🗑</a>
                 </span>
             </div>
 
-            <div class="factura-detalle" id="detalle-prev-{{ factura.id }}" style="display:none;">
+            <div class="factura-detalle" id="detalle-prev-{{ factura.id }}">
                 {% if factura.observaciones %}
                     <p><strong>Observaciones:</strong> {{ factura.observaciones }}</p>
                 {% endif %}
@@ -176,10 +194,9 @@
         </div>
     {% endfor %}
 {% else %}
-    <p style="text-align:center;">No hubo facturas la semana anterior.</p>
+    <p>No hubo facturas la semana anterior.</p>
 {% endif %}
 
-<!-- Botón historial -->
 <div style="text-align:right;">
     <a href="{% url 'historial' %}" class="btn-historial">Historial semanal →</a>
 </div>
@@ -207,6 +224,7 @@
 
 </body>
 </html>
+
 
 
 

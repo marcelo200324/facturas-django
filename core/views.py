@@ -206,4 +206,11 @@ def editar_factura(request, factura_id):
     })
 
 
+def eliminar_factura(request, factura_id):
+    factura = Factura.objects.get(id=factura_id)
+    factura.delete()
+    return redirect('resumen_semanal')
+
+
+
 
