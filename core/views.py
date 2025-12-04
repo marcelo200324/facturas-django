@@ -168,3 +168,42 @@ def exportar_semana_word(request):
 
 
 
+
+
+
+def editar_factura(request, factura_id):
+    factura = Factura.objects.get(id=factura_id)
+
+    if request.method == 'POST':
+        factura.fecha = request.POST.get('fecha')
+        factura.proveedor = request.POST.get('proveedor')
+        factura.numero_factura = request.POST.get('numero_factura')
+        factura.observaciones = request.POST.get('observaciones', '')
+        factura.save()
+
+        # BORRAR todos los productos antiguos
+        factura.productos.all().delete()
+
+        # CREAR los productos nuevos (editados)
+        nombres = request.POST.getlist('producto_nombre[]')
+        precios = request.POST.getlist('producto_precio[]')
+
+        for nombre, precio in zip(nombres, precios):
+            nombre = nombre.strip()
+            if not nombre or not precio:
+                continue
+
+            ProductoFactura.objects.create(
+                factura=factura,
+                nombre_producto=nombre,
+                precio=precio
+            )
+
+        return redirect('resumen_semanal')
+
+    return render(request, 'core/editar_factura.html', {
+        'factura': factura
+    })
+
+
+

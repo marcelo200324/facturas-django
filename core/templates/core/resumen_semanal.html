@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <title>Resumen semanal</title>
     <style>
-    
-
         body {
             font-family: Arial;
             max-width: 900px;
@@ -75,8 +73,13 @@
             margin: 40px 0;
             border-top: 2px solid #666;
         }
-</style>
 
+        .btn-editar {
+            color: #1a73e8;
+            text-decoration: none;
+            margin-left: 10px;
+        }
+    </style>
 </head>
 <body>
 
@@ -103,16 +106,14 @@
                     {{ factura.fecha|date:"d/m/Y" }} — Factura {{ factura.numero_factura }} — {{ factura.proveedor }}
                 </span>
 
-
-
-                
-                
-                <span>Total: $ {{ factura.total|floatformat:0 }}</span>
+                <span>
+                    Total: $ {{ factura.total|floatformat:0 }}
+                    |
+                    <a href="{% url 'editar_factura' factura.id %}" class="btn-editar">✏️ Editar</a>
+                </span>
             </div>
 
             <div class="factura-detalle" id="detalle-{{ factura.id }}">
-                
-
                 {% if factura.observaciones %}
                     <p><strong>Observaciones:</strong> {{ factura.observaciones }}</p>
                 {% endif %}
@@ -135,10 +136,6 @@
 <!-- SEPARADOR -->
 <hr class="divider">
 
-<!-- ╔══════════════════════════════╗ -->
-<!--     SEMANA ANTERIOR AQUI        -->
-<!-- ╚══════════════════════════════╝ -->
-
 <h2>Facturas de la semana anterior</h2>
 
 <p style="text-align:center; font-size: 18px;">
@@ -155,12 +152,14 @@
                     <span class="arrow" id="arrow-prev-{{ factura.id }}">▶</span>
                     {{ factura.fecha|date:"d/m/Y" }} — Factura {{ factura.numero_factura }} — {{ factura.proveedor }}
                 </span>
-                <span>Total: $ {{ factura.total|floatformat:0 }}</span>
+                <span>
+                    Total: $ {{ factura.total|floatformat:0 }}
+                    |
+                    <a href="{% url 'editar_factura' factura.id %}" class="btn-editar">✏️ Editar</a>
+                </span>
             </div>
 
             <div class="factura-detalle" id="detalle-prev-{{ factura.id }}" style="display:none;">
-                
-
                 {% if factura.observaciones %}
                     <p><strong>Observaciones:</strong> {{ factura.observaciones }}</p>
                 {% endif %}
@@ -185,34 +184,14 @@
     <a href="{% url 'historial' %}" class="btn-historial">Historial semanal →</a>
 </div>
 
-
 <div style="text-align:right; margin-top:15px;">
     <a href="{% url 'exportar_word' %}" class="btn-historial">Exportar Word 📝</a>
 </div>
-
-
 
 <script>
     function toggleDetalle(id) {
         const detalle = document.getElementById('detalle-' + id);
         const arrow = document.getElementById('arrow-' + id);
-
-        if (!detalle || !arrow) return;
-
-        if (detalle.style.display === "none" || detalle.style.display === "") {
-            detalle.style.display = "block";
-            arrow.classList.add("rotate");
-        } else {
-            detalle.style.display = "none";
-            arrow.classList.remove("rotate");
-        }
-    }
-</script>
-
-<script>
-    function toggleDetalle2(id) {
-        const detalle = document.getElementById('detalle-prev-' + id);
-        const arrow = document.getElementById('arrow-prev-' + id);
 
         if (!detalle || !arrow) return;
 
